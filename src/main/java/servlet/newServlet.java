@@ -18,7 +18,7 @@ public class newServlet extends HttpServlet {
     
     public void doGet(final HttpServletRequest request, final HttpServletResponse response)
             throws IOException, ServletException {
-        response.getWriter().write("first maven project");
+        response.getWriter().write("new Servlet");
     }
     public void doPost(final HttpServletRequest request, final HttpServletResponse response)
             throws IOException, ServletException {
