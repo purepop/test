@@ -17,16 +17,13 @@
     <project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
     <maven.compiler.source>1.7</maven.compiler.source>
     <maven.compiler.target>1.7</maven.compiler.target>
-    <project.tomcat.lib>E:/tomcat/apache-tomcat-10.0.0-M7/lib/</project.tomcat.lib>
   </properties>
 
   <dependencies>
     <dependency>
-      <groupId>jakarta.servlet</groupId>
-      <artifactId>servlet-api</artifactId>
-      <version>1.0</version>
-      <scope>system</scope>
-      <systemPath>${project.tomcat.lib}servlet-api.jar</systemPath>
+      <groupId>org.apache.tomcat</groupId>
+      <artifactId>tomcat-servlet-api</artifactId>
+      <version>10.0.0-M7</version>
     </dependency>
     <dependency>
       <groupId>junit</groupId>
