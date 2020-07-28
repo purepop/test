@@ -16,7 +16,7 @@ public class MyServlet extends HttpServlet {
     @Override
     protected void doGet(final HttpServletRequest request, final HttpServletResponse response)
             throws IOException, ServletException {
-        response.getWriter().write("my Servlet");
+        response.getWriter().write("myServlet");
     }
 
     @Override
