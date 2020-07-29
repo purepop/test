@@ -21,8 +21,7 @@ public class MyServlet extends HttpServlet {
 
     @Override
     protected void doPost(final HttpServletRequest request, final HttpServletResponse response)
-            throws IOException, ServletException
-    {
+            throws IOException, ServletException {
         doGet(request, response);
     }
 }
