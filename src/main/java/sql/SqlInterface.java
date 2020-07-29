@@ -13,18 +13,22 @@ import java.util.List;
 public class SqlInterface {
     private String sql;
     private List<Object> params;
+    private String className;
+
     private Connection conn = null;
 	private PreparedStatement ps = null;
 	private ResultSet rs = null;
 
-    public SqlInterface(String sql) {
+    public SqlInterface(String sql, String className) {
         this.sql = sql;
         this.params = null;
+        this.className = className;
     }
 
-    public SqlInterface(String sql, List<Object> params) {
+    public SqlInterface(String sql, List<Object> params, String className) {
         this.sql = sql;
         this.params = params;
+        this.className = className;
     }
 
     public List<HashMap<String, String>> queryLists() {
@@ -33,8 +37,6 @@ public class SqlInterface {
         try {
             conn = SqlConnect.getConnection();
             ps = conn.prepareStatement(sql);
-
-            String className = "user";
 
             Iterator<Object> iterator = params.iterator();
 
