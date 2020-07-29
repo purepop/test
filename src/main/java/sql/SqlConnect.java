@@ -19,13 +19,11 @@ public class SqlConnect {
 		try{
 			Class.forName(driver);
 			conn = DriverManager.getConnection(url, user, passWord);	
-		}
-		catch(final SQLTimeoutException e) {
+		} catch(final SQLTimeoutException e) {
             e.printStackTrace();
         } catch (final SQLException e) {
             e.printStackTrace();
         } catch (final ClassNotFoundException e) {
-            // TODO Auto-generated catch block
             e.printStackTrace();
         } finally {
 
