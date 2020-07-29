@@ -6,7 +6,6 @@ import java.sql.PreparedStatement;
 import java.sql.ResultSet;
 import java.sql.SQLException;
 import java.util.HashMap;
-import java.util.Iterator;
 import java.util.LinkedList;
 import java.util.List;
 
@@ -25,7 +24,7 @@ public class SqlInterface {
         this.className = className;
     }
 
-    public SqlInterface(String sql, List<Object> params, String className) {
+    public SqlInterface(String sql, String className, List<Object> params) {
         this.sql = sql;
         this.params = params;
         this.className = className;
@@ -38,13 +37,10 @@ public class SqlInterface {
             conn = SqlConnect.getConnection();
             ps = conn.prepareStatement(sql);
 
-            Iterator<Object> iterator = params.iterator();
-
-            if (iterator.hasNext())
+            int i = 1;
+            for (Object item : params)
             {
-                int i = 1;
-                
-                ps.setObject(i++, iterator.next());
+                ps.setObject(i++, item);
             }
 
             rs = ps.executeQuery();
@@ -54,9 +50,9 @@ public class SqlInterface {
                 Class<?> c = Class.forName(className);
                 
                 Field[] fields = c.getFields();
-                for (int i = 0; i < fields.length; i++)
+                for (int j = 0; j < fields.length; j++)
                 {
-                    map.put(fields[i].getName(), rs.getString(fields[i].getName()));
+                    map.put(fields[j].getName(), rs.getString(fields[j].getName()));
                 }
                 result.add(map);
             }
