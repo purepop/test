@@ -116,6 +116,27 @@ public class SqlInterface<T> {
         return flag;
     }
 
+    public int update(HashMap<String, Object> whparams) {
+        int r = 0;
+        int i = 1;
+
+        try {
+            ps = conn.prepareStatement(spellSQL("update", whparams.keySet()));
+            for (Object param : whparams.values()) {
+                if (i == 1) continue;
+                ps.setObject(i++, param);
+            }
+            ps.setObject(i, whparams.values().iterator().next());
+            r = ps.executeUpdate();
+        } catch (SQLException e) {
+            e.printStackTrace();
+        } finally {
+            SqlConnect.close(ps);
+        }
+
+        return r;
+    }
+
     private void select(HashMap<String, Object> whparams) {
         int i = 1;
         try {
@@ -146,7 +167,7 @@ public class SqlInterface<T> {
             sql.append(type + " from " + clazz.getSimpleName() + " where ");
             for (String key : whkeys)
             {
-                if (i != 0) { sql.append( "and" ); }
+                if (i != 0) { sql.append(" and "); }
                 sql.append(key + " = ?");
                 i++;
             }
@@ -168,6 +189,19 @@ public class SqlInterface<T> {
         }
         else if (type.equals("update")) {
             sql.append(type + clazz.getSimpleName() + " set ");
+            StringBuffer wh = new StringBuffer(" where ");
+            for (String key : whkeys)
+            {
+                if (i == 0) {
+                    wh.append(key + "=?");
+                    i++;
+                    continue;
+                }
+                sql.append(key + " = ?,");
+                i++;
+            }
+            sql.deleteCharAt(sql.length() - 1);
+            sql.append(wh);
         }
 
         return sql.toString();
