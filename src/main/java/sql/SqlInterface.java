@@ -1,69 +1,175 @@
 package sql;
 
 import java.lang.reflect.Field;
+import java.lang.reflect.InvocationTargetException;
 import java.sql.Connection;
 import java.sql.PreparedStatement;
 import java.sql.ResultSet;
+import java.sql.ResultSetMetaData;
 import java.sql.SQLException;
+import java.sql.Statement;
+import java.util.ArrayList;
 import java.util.HashMap;
-import java.util.LinkedList;
 import java.util.List;
+import java.util.Set;
 
-public class SqlInterface {
-    private String sql;
-    private List<Object> params;
-    private String className;
+public class SqlInterface<T> {
+    static Connection conn = null;
+    static PreparedStatement ps = null;
+    static ResultSet rs = null;
 
-    private Connection conn = null;
-	private PreparedStatement ps = null;
-	private ResultSet rs = null;
+    Class<T> clazz = null;
 
-    public SqlInterface(String sql, String className) {
-        this.sql = sql;
-        this.params = null;
-        this.className = className;
+    private SqlInterface() {
     }
 
-    public SqlInterface(String sql, String className, List<Object> params) {
-        this.sql = sql;
-        this.params = params;
-        this.className = className;
+    public SqlInterface(Class<T> clazz) {
+        try {
+            this.clazz = clazz;
+
+            conn = SqlConnect.getConnection();
+        } catch (Exception e) {
+            e.printStackTrace();
+            new SqlInterface<T>();
+        }
     }
 
-    public List<HashMap<String, String>> queryLists() {
-        List<HashMap<String, String>> result = new LinkedList<HashMap<String, String>>();
+    protected void finalize() {
+        SqlConnect.close(conn);
+    }
+
+    public List<T> queryList(HashMap<String, Object> whparams) {
+        List<T> result = new ArrayList<>();
+        select(whparams);
 
         try {
-            conn = SqlConnect.getConnection();
-            ps = conn.prepareStatement(sql);
-
-            int i = 1;
-            for (Object item : params)
-            {
-                ps.setObject(i++, item);
-            }
-
-            rs = ps.executeQuery();
-            while (rs.next())
-            {
-                HashMap<String, String> map = new HashMap<>();
-                Class<?> c = Class.forName(className);
-                
-                Field[] fields = c.getFields();
-                for (int j = 0; j < fields.length; j++)
-                {
-                    map.put(fields[j].getName(), rs.getString(fields[j].getName()));
+            ResultSetMetaData metaData = rs.getMetaData();
+            while (rs.next()) {
+                T instance = clazz.getDeclaredConstructor().newInstance();
+                for (int i = 0; i < metaData.getColumnCount(); i++) {
+                    Field field = clazz.getDeclaredField(metaData.getColumnName(i));
+                    field.setAccessible(true);
+                    field.set(instance, rs.getObject(i));
                 }
-                result.add(map);
+                result.add(instance);
             }
         } catch (SQLException e) {
             e.printStackTrace();
-        } catch (ClassNotFoundException e) {
+        } catch (InstantiationException e) {
+            e.printStackTrace();
+        } catch (IllegalAccessException e) {
+            e.printStackTrace();
+        } catch (IllegalArgumentException e) {
+            e.printStackTrace();
+        } catch (InvocationTargetException e) {
+            e.printStackTrace();
+        } catch (NoSuchMethodException e) {
+            e.printStackTrace();
+        } catch (SecurityException e) {
+            e.printStackTrace();
+        } catch (NoSuchFieldException e) {
             e.printStackTrace();
         } finally {
-            SqlConnect.close(conn, ps, rs);
+            SqlConnect.close(ps, rs);
         }
 
         return result;
+    }
+
+    public int insert(HashMap<String, Object> whparams) {
+        int id = 0;
+        int i = 1;
+
+        try {
+            ps = conn.prepareStatement(spellSQL("insert", whparams.keySet()), Statement.RETURN_GENERATED_KEYS);
+            for (Object param : whparams.values()) {
+                ps.setObject(i++, param);
+            }
+            ps.executeUpdate();
+            rs = ps.getGeneratedKeys();
+            while (rs.next()) id = rs.getInt(1);
+        } catch (SQLException e) {
+            e.printStackTrace();
+        } finally {
+            SqlConnect.close(ps, rs);
+        }
+
+        return id;
+    }
+
+    public Boolean delete(HashMap<String, Object> whparams) {
+        Boolean flag = false;
+        int i = 1;
+
+        try {
+            ps = conn.prepareStatement(spellSQL("delete", whparams.keySet()));
+            for (Object param : whparams.values()) {
+                ps.setObject(i++, param);
+            }
+            flag = ps.execute();
+        } catch (SQLException e) {
+            e.printStackTrace();
+        } finally {
+            SqlConnect.close(ps);
+        }
+
+        return flag;
+    }
+
+    private void select(HashMap<String, Object> whparams) {
+        int i = 1;
+        try {
+            ps = conn.prepareStatement(spellSQL("select", whparams.keySet()));
+            for (Object param : whparams.values()) {
+                ps.setObject(i++, param);
+            }
+            rs = ps.executeQuery();
+        } catch (SQLException e) {
+            e.printStackTrace();
+        }
+    }
+
+    private String spellSQL(String type, Set<String> whkeys) {
+        StringBuffer sql = new StringBuffer("");
+        int i = 0;
+
+        if (type.equals("select")) {
+            sql.append(type + " * from " + clazz.getSimpleName() + " where ");
+            for (String key : whkeys)
+            {
+                if (i != 0) { sql.append( "and" ); }
+                sql.append(key + " = ?");
+                i++;
+            }
+        }
+        else if (type.equals("delete")) {
+            sql.append(type + " from " + clazz.getSimpleName() + " where ");
+            for (String key : whkeys)
+            {
+                if (i != 0) { sql.append( "and" ); }
+                sql.append(key + " = ?");
+                i++;
+            }
+        }
+        else if (type.equals("insert")) {
+            sql.append(type + " into " + clazz.getSimpleName());
+            StringBuffer values = new StringBuffer("values (");
+            for (String key : whkeys)
+            {
+                if (i == 0) { sql.append( " (" ); }
+                sql.append(key + ",");
+                values.append("?,");
+                i++;
+            }
+            values.deleteCharAt(values.length() - 1);
+            values.append(")");
+            sql.deleteCharAt(sql.length() - 1);
+            sql.append(")" + values);
+        }
+        else if (type.equals("update")) {
+            sql.append(type + clazz.getSimpleName() + " set ");
+        }
+
+        return sql.toString();
     }
 }

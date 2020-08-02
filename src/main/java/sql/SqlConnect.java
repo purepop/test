@@ -42,6 +42,12 @@ public class SqlConnect {
         close(conn);
     }
 
+    public static void close(final Statement sm, final ResultSet rs)
+    {
+        close(sm);
+        close(rs);
+    }
+
     public static void close(final Connection conn) {
         try {
             conn.close();
