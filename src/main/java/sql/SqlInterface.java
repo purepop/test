@@ -38,7 +38,7 @@ public class SqlInterface<T> {
         SqlConnect.close(conn);
     }
 
-    public List<T> queryList(HashMap<String, Object> whparams) {
+    public List<T> queryList(HashMap<String, Object> whparams) throws InvocationTargetException, NoSuchMethodException {
         List<T> result = new ArrayList<>();
         select(whparams);
 
@@ -46,7 +46,7 @@ public class SqlInterface<T> {
             ResultSetMetaData metaData = rs.getMetaData();
             while (rs.next()) {
                 T instance = clazz.getDeclaredConstructor().newInstance();
-                for (int i = 0; i < metaData.getColumnCount(); i++) {
+                for (int i = 1; i <= metaData.getColumnCount(); i++) {
                     Field field = clazz.getDeclaredField(metaData.getColumnName(i));
                     field.setAccessible(true);
                     field.set(instance, rs.getObject(i));
@@ -60,10 +60,6 @@ public class SqlInterface<T> {
         } catch (IllegalAccessException e) {
             e.printStackTrace();
         } catch (IllegalArgumentException e) {
-            e.printStackTrace();
-        } catch (InvocationTargetException e) {
-            e.printStackTrace();
-        } catch (NoSuchMethodException e) {
             e.printStackTrace();
         } catch (SecurityException e) {
             e.printStackTrace();
@@ -81,7 +77,7 @@ public class SqlInterface<T> {
         int i = 1;
 
         try {
-            ps = conn.prepareStatement(spellSQL("insert", whparams.keySet()), Statement.RETURN_GENERATED_KEYS);
+            ps = conn.prepareStatement(spellSQL("insert", whparams.keySet(), null), Statement.RETURN_GENERATED_KEYS);
             for (Object param : whparams.values()) {
                 ps.setObject(i++, param);
             }
@@ -97,16 +93,16 @@ public class SqlInterface<T> {
         return id;
     }
 
-    public Boolean delete(HashMap<String, Object> whparams) {
-        Boolean flag = false;
+    public int delete(HashMap<String, Object> whparams) {
+        int flag = 0;
         int i = 1;
 
         try {
-            ps = conn.prepareStatement(spellSQL("delete", whparams.keySet()));
+            ps = conn.prepareStatement(spellSQL("delete", whparams.keySet(), null));
             for (Object param : whparams.values()) {
                 ps.setObject(i++, param);
             }
-            flag = ps.execute();
+            flag = ps.executeUpdate();
         } catch (SQLException e) {
             e.printStackTrace();
         } finally {
@@ -116,17 +112,18 @@ public class SqlInterface<T> {
         return flag;
     }
 
-    public int update(HashMap<String, Object> whparams) {
+    public int update(HashMap<String, Object> params, HashMap<String, Object> whparams) {
         int r = 0;
         int i = 1;
 
         try {
-            ps = conn.prepareStatement(spellSQL("update", whparams.keySet()));
-            for (Object param : whparams.values()) {
-                if (i == 1) continue;
+            ps = conn.prepareStatement(spellSQL("update", params.keySet(), whparams.keySet()));
+            for (Object param : params.values()) {
                 ps.setObject(i++, param);
             }
-            ps.setObject(i, whparams.values().iterator().next());
+            for (Object param : whparams.values()) {
+            	ps.setObject(i++, param);
+            }
             r = ps.executeUpdate();
         } catch (SQLException e) {
             e.printStackTrace();
@@ -140,7 +137,7 @@ public class SqlInterface<T> {
     private void select(HashMap<String, Object> whparams) {
         int i = 1;
         try {
-            ps = conn.prepareStatement(spellSQL("select", whparams.keySet()));
+            ps = conn.prepareStatement(spellSQL("select", whparams.keySet(), null));
             for (Object param : whparams.values()) {
                 ps.setObject(i++, param);
             }
@@ -150,22 +147,23 @@ public class SqlInterface<T> {
         }
     }
 
-    private String spellSQL(String type, Set<String> whkeys) {
+    private String spellSQL(String type, Set<String> keys, Set<String> whkeys) {
         StringBuffer sql = new StringBuffer("");
         int i = 0;
 
         if (type.equals("select")) {
-            sql.append(type + " * from " + clazz.getSimpleName() + " where ");
-            for (String key : whkeys)
+            sql.append(type + " * from " + clazz.getSimpleName());
+            for (String key : keys)
             {
-                if (i != 0) { sql.append( "and" ); }
+                if (i != 0) { sql.append(" and "); }
+                if (i == 0) { sql.append(" where "); }
                 sql.append(key + " = ?");
                 i++;
             }
         }
         else if (type.equals("delete")) {
             sql.append(type + " from " + clazz.getSimpleName() + " where ");
-            for (String key : whkeys)
+            for (String key : keys)
             {
                 if (i != 0) { sql.append(" and "); }
                 sql.append(key + " = ?");
@@ -175,7 +173,7 @@ public class SqlInterface<T> {
         else if (type.equals("insert")) {
             sql.append(type + " into " + clazz.getSimpleName());
             StringBuffer values = new StringBuffer("values (");
-            for (String key : whkeys)
+            for (String key : keys)
             {
                 if (i == 0) { sql.append( " (" ); }
                 sql.append(key + ",");
@@ -188,17 +186,17 @@ public class SqlInterface<T> {
             sql.append(")" + values);
         }
         else if (type.equals("update")) {
-            sql.append(type + clazz.getSimpleName() + " set ");
+            sql.append(type + " " + clazz.getSimpleName() + " set ");
             StringBuffer wh = new StringBuffer(" where ");
+            for (String key : keys)
+            {
+                sql.append(key + " = ?,");
+            }
             for (String key : whkeys)
             {
-                if (i == 0) {
-                    wh.append(key + "=?");
-                    i++;
-                    continue;
-                }
-                sql.append(key + " = ?,");
-                i++;
+            	if (i != 0) { sql.append(" and "); }
+            	wh.append(key + "=?");
+            	i++;
             }
             sql.deleteCharAt(sql.length() - 1);
             sql.append(wh);
