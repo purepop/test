@@ -14,7 +14,7 @@ import java.util.List;
 import java.util.Set;
 
 public class SqlInterface<T> {
-    static Connection conn = null;
+    static Connection conn = SqlConnect.getConnection();;
     static PreparedStatement ps = null;
     static ResultSet rs = null;
 
@@ -26,8 +26,6 @@ public class SqlInterface<T> {
     public SqlInterface(Class<T> clazz) {
         try {
             this.clazz = clazz;
-
-            conn = SqlConnect.getConnection();
         } catch (Exception e) {
             e.printStackTrace();
             new SqlInterface<T>();
