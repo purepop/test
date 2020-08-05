@@ -36,9 +36,47 @@ public class SqlInterface<T> {
         SqlConnect.close(conn);
     }
 
-    public List<T> queryList(HashMap<String, Object> whparams) throws InvocationTargetException, NoSuchMethodException {
+    public List<T> queryList(HashMap<String, Object> whparams) {
         List<T> result = new ArrayList<>();
         select(whparams);
+
+        try {
+            ResultSetMetaData metaData = rs.getMetaData();  
+            while (rs.next()) {
+                T instance = clazz.getDeclaredConstructor().newInstance();
+                for (int i = 1; i <= metaData.getColumnCount(); i++) {
+                    Field field = clazz.getDeclaredField(metaData.getColumnName(i));
+                    field.setAccessible(true);
+                    field.set(instance, rs.getObject(i));
+                }
+                result.add(instance);
+            }
+        } catch (SQLException e) {
+            e.printStackTrace();
+        } catch (InstantiationException e) {
+            e.printStackTrace();
+        } catch (IllegalAccessException e) {
+            e.printStackTrace();
+        } catch (IllegalArgumentException e) {
+            e.printStackTrace();
+        } catch (SecurityException e) {
+            e.printStackTrace();
+        } catch (NoSuchFieldException e) {
+            e.printStackTrace();
+        } catch (InvocationTargetException e) {
+            e.printStackTrace();
+        } catch (NoSuchMethodException e) {
+            e.printStackTrace();
+        } finally {
+            SqlConnect.close(ps, rs);
+        }
+
+        return result;
+    }
+
+    public List<T> queryList(HashMap<String, Object> whparams, String sort, String order, int beginIndex, int count) {
+        List<T> result = new ArrayList<>();
+        select(whparams, sort, order, beginIndex, count);
 
         try {
             ResultSetMetaData metaData = rs.getMetaData();
@@ -62,6 +100,10 @@ public class SqlInterface<T> {
         } catch (SecurityException e) {
             e.printStackTrace();
         } catch (NoSuchFieldException e) {
+            e.printStackTrace();
+        } catch (InvocationTargetException e) {
+            e.printStackTrace();
+        } catch (NoSuchMethodException e) {
             e.printStackTrace();
         } finally {
             SqlConnect.close(ps, rs);
@@ -132,6 +174,41 @@ public class SqlInterface<T> {
         return r;
     }
 
+    public int count(HashMap<String, Object> whparams) {
+        int totalRows = 0;
+        int i = 1;
+
+        try {
+            ps = conn.prepareStatement("select COUNT(*) from (" + spellSQL("select", whparams.keySet(), null) + ") tmp");
+            for (Object param : whparams.values()) {
+                ps.setObject(i++, param);
+            }
+            rs = ps.executeQuery();
+            while (rs.next()) {
+                totalRows = rs.getInt(1);
+            }
+        } catch (SQLException e) {
+            e.printStackTrace();
+        } finally {
+            SqlConnect.close(ps, rs);
+        }
+
+        return totalRows;
+    }
+
+    private void select(HashMap<String, Object> whparams, String sort, String order, int beginIndex, int count) {
+        int i = 1;
+        try {
+            ps = conn.prepareStatement(spellSQL("select", whparams.keySet(), null) + " order by " + order + " " + sort + " limit " + beginIndex + "," + count);
+            for (Object param : whparams.values()) {
+                ps.setObject(i++, param);
+            }
+            rs = ps.executeQuery();
+        } catch (SQLException e) {
+            e.printStackTrace();
+        }
+    }
+
     private void select(HashMap<String, Object> whparams) {
         int i = 1;
         try {
@@ -155,7 +232,13 @@ public class SqlInterface<T> {
             {
                 if (i != 0) { sql.append(" and "); }
                 if (i == 0) { sql.append(" where "); }
-                sql.append(key + " = ?");
+                if (key.contains("between")) {
+                    sql.append(key + " between ? and ?");
+                } else if (key.contains("like%%")) {
+                    sql.append(key + "like %?%");
+                } else {
+                    sql.append(key + " = ?");
+                }
                 i++;
             }
         }
