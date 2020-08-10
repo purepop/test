@@ -14,7 +14,7 @@ public class HelloController {
     @Autowired
     ICarService carService;
 
-    @RequestMapping ("/toxHello")
+    @RequestMapping ("/toHello")
     public ModelAndView helloString() {
         ModelAndView mv = new ModelAndView("/HelloSpringMVC");
 
