@@ -11,7 +11,7 @@
         <mvc:annotation-driven/>
 
         <!-- 静态资源默认servlet配置 -->
-        <mvc:default-servlet-handler/>
+        <mvc:default-servlet-handler />
 
         <mvc:annotation-driven>
             <mvc:message-converters register-defaults="true">

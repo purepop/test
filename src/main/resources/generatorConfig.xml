@@ -32,7 +32,6 @@
             <property name="enableSubPackages" value="false"/>
         </javaClientGenerator>
             <!--定义需要操作的表及对应的DTO名称-->
-        <table tableName="cars" domainObjectName="Cars"/>
-        <table tableName="factory" domainObjectName="Factory"/>
+        <table tableName="carsvo" domainObjectName="CarsVo"/>
     </context>
 </generatorConfiguration>

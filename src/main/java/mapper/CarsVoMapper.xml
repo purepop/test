@@ -1,0 +1,199 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="dao.CarsVoMapper">
+  <resultMap id="BaseResultMap" type="po.CarsVo">
+    <result column="carid" jdbcType="INTEGER" property="carid" />
+    <result column="name" jdbcType="VARCHAR" property="name" />
+    <result column="factoryid" jdbcType="INTEGER" property="factoryid" />
+    <result column="year" jdbcType="INTEGER" property="year" />
+    <result column="id" jdbcType="INTEGER" property="id" />
+    <result column="manufactory" jdbcType="VARCHAR" property="manufactory" />
+    <result column="address" jdbcType="VARCHAR" property="address" />
+  </resultMap>
+  <sql id="Example_Where_Clause">
+    <where>
+      <foreach collection="oredCriteria" item="criteria" separator="or">
+        <if test="criteria.valid">
+          <trim prefix="(" prefixOverrides="and" suffix=")">
+            <foreach collection="criteria.criteria" item="criterion">
+              <choose>
+                <when test="criterion.noValue">
+                  and ${criterion.condition}
+                </when>
+                <when test="criterion.singleValue">
+                  and ${criterion.condition} #{criterion.value}
+                </when>
+                <when test="criterion.betweenValue">
+                  and ${criterion.condition} #{criterion.value} and #{criterion.secondValue}
+                </when>
+                <when test="criterion.listValue">
+                  and ${criterion.condition}
+                  <foreach close=")" collection="criterion.value" item="listItem" open="(" separator=",">
+                    #{listItem}
+                  </foreach>
+                </when>
+              </choose>
+            </foreach>
+          </trim>
+        </if>
+      </foreach>
+    </where>
+  </sql>
+  <sql id="Update_By_Example_Where_Clause">
+    <where>
+      <foreach collection="example.oredCriteria" item="criteria" separator="or">
+        <if test="criteria.valid">
+          <trim prefix="(" prefixOverrides="and" suffix=")">
+            <foreach collection="criteria.criteria" item="criterion">
+              <choose>
+                <when test="criterion.noValue">
+                  and ${criterion.condition}
+                </when>
+                <when test="criterion.singleValue">
+                  and ${criterion.condition} #{criterion.value}
+                </when>
+                <when test="criterion.betweenValue">
+                  and ${criterion.condition} #{criterion.value} and #{criterion.secondValue}
+                </when>
+                <when test="criterion.listValue">
+                  and ${criterion.condition}
+                  <foreach close=")" collection="criterion.value" item="listItem" open="(" separator=",">
+                    #{listItem}
+                  </foreach>
+                </when>
+              </choose>
+            </foreach>
+          </trim>
+        </if>
+      </foreach>
+    </where>
+  </sql>
+  <sql id="Base_Column_List">
+    carid, name, factoryid, year, id, manufactory, address
+  </sql>
+  <select id="selectByExample" parameterType="po.CarsVoExample" resultMap="BaseResultMap">
+    select
+    <if test="distinct">
+      distinct
+    </if>
+    <include refid="Base_Column_List" />
+    from carsvo
+    <if test="_parameter != null">
+      <include refid="Example_Where_Clause" />
+    </if>
+    <if test="orderByClause != null">
+      order by ${orderByClause}
+    </if>
+  </select>
+  <delete id="deleteByExample" parameterType="po.CarsVoExample">
+    delete from carsvo
+    <if test="_parameter != null">
+      <include refid="Example_Where_Clause" />
+    </if>
+  </delete>
+  <insert id="insert" parameterType="po.CarsVo">
+    insert into carsvo (carid, name, factoryid, 
+      year, id, manufactory, 
+      address)
+    values (#{carid,jdbcType=INTEGER}, #{name,jdbcType=VARCHAR}, #{factoryid,jdbcType=INTEGER}, 
+      #{year,jdbcType=INTEGER}, #{id,jdbcType=INTEGER}, #{manufactory,jdbcType=VARCHAR}, 
+      #{address,jdbcType=VARCHAR})
+  </insert>
+  <insert id="insertSelective" parameterType="po.CarsVo">
+    insert into carsvo
+    <trim prefix="(" suffix=")" suffixOverrides=",">
+      <if test="carid != null">
+        carid,
+      </if>
+      <if test="name != null">
+        name,
+      </if>
+      <if test="factoryid != null">
+        factoryid,
+      </if>
+      <if test="year != null">
+        year,
+      </if>
+      <if test="id != null">
+        id,
+      </if>
+      <if test="manufactory != null">
+        manufactory,
+      </if>
+      <if test="address != null">
+        address,
+      </if>
+    </trim>
+    <trim prefix="values (" suffix=")" suffixOverrides=",">
+      <if test="carid != null">
+        #{carid,jdbcType=INTEGER},
+      </if>
+      <if test="name != null">
+        #{name,jdbcType=VARCHAR},
+      </if>
+      <if test="factoryid != null">
+        #{factoryid,jdbcType=INTEGER},
+      </if>
+      <if test="year != null">
+        #{year,jdbcType=INTEGER},
+      </if>
+      <if test="id != null">
+        #{id,jdbcType=INTEGER},
+      </if>
+      <if test="manufactory != null">
+        #{manufactory,jdbcType=VARCHAR},
+      </if>
+      <if test="address != null">
+        #{address,jdbcType=VARCHAR},
+      </if>
+    </trim>
+  </insert>
+  <select id="countByExample" parameterType="po.CarsVoExample" resultType="java.lang.Long">
+    select count(*) from carsvo
+    <if test="_parameter != null">
+      <include refid="Example_Where_Clause" />
+    </if>
+  </select>
+  <update id="updateByExampleSelective" parameterType="map">
+    update carsvo
+    <set>
+      <if test="record.carid != null">
+        carid = #{record.carid,jdbcType=INTEGER},
+      </if>
+      <if test="record.name != null">
+        name = #{record.name,jdbcType=VARCHAR},
+      </if>
+      <if test="record.factoryid != null">
+        factoryid = #{record.factoryid,jdbcType=INTEGER},
+      </if>
+      <if test="record.year != null">
+        year = #{record.year,jdbcType=INTEGER},
+      </if>
+      <if test="record.id != null">
+        id = #{record.id,jdbcType=INTEGER},
+      </if>
+      <if test="record.manufactory != null">
+        manufactory = #{record.manufactory,jdbcType=VARCHAR},
+      </if>
+      <if test="record.address != null">
+        address = #{record.address,jdbcType=VARCHAR},
+      </if>
+    </set>
+    <if test="_parameter != null">
+      <include refid="Update_By_Example_Where_Clause" />
+    </if>
+  </update>
+  <update id="updateByExample" parameterType="map">
+    update carsvo
+    set carid = #{record.carid,jdbcType=INTEGER},
+      name = #{record.name,jdbcType=VARCHAR},
+      factoryid = #{record.factoryid,jdbcType=INTEGER},
+      year = #{record.year,jdbcType=INTEGER},
+      id = #{record.id,jdbcType=INTEGER},
+      manufactory = #{record.manufactory,jdbcType=VARCHAR},
+      address = #{record.address,jdbcType=VARCHAR}
+    <if test="_parameter != null">
+      <include refid="Update_By_Example_Where_Clause" />
+    </if>
+  </update>
+</mapper>

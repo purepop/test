@@ -3,7 +3,7 @@ package Controller;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Controller;
 import org.springframework.web.bind.annotation.RequestMapping;
-import org.springframework.web.servlet.ModelAndView;
+import org.springframework.web.bind.annotation.ResponseBody;
 
 import po.Cars;
 import service.ICarService;
@@ -15,12 +15,12 @@ public class HelloController {
     ICarService carService;
 
     @RequestMapping ("/toHello")
-    public ModelAndView helloString() {
-        ModelAndView mv = new ModelAndView("/HelloSpringMVC");
+    public @ResponseBody Cars helloString() {
+        //ModelAndView mv = new ModelAndView("/HelloSpringMVC");
 
         Cars cars = carService.seleCarsByID(1);
-        mv.addObject("cars", cars);
+        //mv.addObject("cars", cars);
 
-        return mv;
+        return cars;
     }
 }
