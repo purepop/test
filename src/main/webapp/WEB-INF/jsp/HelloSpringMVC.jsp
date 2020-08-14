@@ -13,10 +13,38 @@ String basePath = request.getScheme()+"://"+request.getServerName()+":"+request.
 <meta http-equiv="Content-Type" content="text/html;">  
 <title>Insert title here</title>  
 <script type="text/javascript" src="${cxt}/Content/jquery-3.3.1.min.js"></script>
+<link href="${cxt}/Content/jquery.bsgrid-1.37/builds/merged/bsgrid.all.min.css" rel="stylesheet" />
+<script src="${cxt}/Content/jquery.bsgrid-1.37/builds/merged/bsgrid.all.min.js"></script>
+<script src="${cxt}/Content/jquery.bsgrid-1.37/builds/js/lang/grid.zh-CN.min.js"></script>
 </head>  
 <body>  
 <h1>Hello Spring MVC</h1>
+
+<table id="tbTeacherInfor">
+    <tr>
+        <th w_num="total_line">序号</th>
+        <th w_index="carid">carid</th>
+        <th w_index="name">名称</th>
+        <th w_index="factoryid">factoryid</th>
+        <th w_index="year">年份</th>
+        <th w_index="id">id</th>
+        <th w_index="manufactory">生产厂家</th>
+        <th w_index="address">地址</th>
+    </tr>
+</table>
+
 <script>
+    $.fn.bsgrid.init("tbTeacherInfor", {
+                url: "${cxt}/Hello/toBsgrid",
+                pageSize: 10,
+                autoLoad: true,
+                rowHoverColor: true,
+                stripeRows: true,
+                rowHoverColor: true,
+                rowSelectedColor: true,
+                pagingLittleToolbar: true
+    });
+
     $.post("${cxt}/Hello/toHello", function(data){
         console.log(data);
     })
