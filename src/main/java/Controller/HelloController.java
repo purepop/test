@@ -9,6 +9,7 @@ import org.springframework.web.bind.annotation.ResponseBody;
 
 import po.Cars;
 import po.CarsVo;
+import po.TestDate;
 import service.ICarService;
 import tool.Bsgrid;
 import tool.BsgridPage;
@@ -39,5 +40,10 @@ public class HelloController {
         bsgrid.setData(cars);
 
         return bsgrid;
+    }
+
+    @RequestMapping ("/toDate")
+    public @ResponseBody TestDate toDate(TestDate test) {
+        return test;
     }
 }

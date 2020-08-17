@@ -47,7 +47,12 @@ String basePath = request.getScheme()+"://"+request.getServerName()+":"+request.
 
     $.post("${cxt}/Hello/toHello", function(data){
         console.log(data);
-    })
+    });
+
+    $.post("${cxt}/Hello/toDate", { birthday: "2000-03-12 12:00:00" }, function(data)
+    {
+        console.log(data);
+    }, "json")
 </script>
 </body>
 </html>  
