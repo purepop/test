@@ -15,22 +15,22 @@ import tool.Bsgrid;
 import tool.BsgridPage;
 
 @Controller
-@RequestMapping ("/Hello")
+@RequestMapping("/Hello")
 public class HelloController {
     @Autowired
     ICarService carService;
 
-    @RequestMapping ("/toHello")
+    @RequestMapping("/toHello")
     public @ResponseBody Cars helloString() {
-        //ModelAndView mv = new ModelAndView("/HelloSpringMVC");
+        // ModelAndView mv = new ModelAndView("/HelloSpringMVC");
 
         Cars cars = carService.seleCarsByID(1);
-        //mv.addObject("cars", cars);
+        // mv.addObject("cars", cars);
 
         return cars;
     }
 
-    @RequestMapping (value = "/toBsgrid")
+    @RequestMapping(value = "/toBsgrid")
     public @ResponseBody Bsgrid<CarsVo> toBsgridCars(BsgridPage bsgridPage) {
         List<CarsVo> cars = carService.selectCarData(bsgridPage.GetStartIndex(), bsgridPage.getPageSize());
         Bsgrid<CarsVo> bsgrid = new Bsgrid<>();
@@ -42,7 +42,7 @@ public class HelloController {
         return bsgrid;
     }
 
-    @RequestMapping ("/toDate")
+    @RequestMapping("/toDate")
     public @ResponseBody TestDate toDate(TestDate test) {
         return test;
     }
