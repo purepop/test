@@ -5,6 +5,13 @@
 
 <generatorConfiguration>
     <context id="mysqlTables" targetRuntime="MyBatis3">
+        <!-- 分页相关 -->
+		<plugin type="org.mybatis.generator.plugins.RowBoundsPlugin" />
+		<!-- 带上序列化接口 -->
+        <plugin type="org.mybatis.generator.plugins.SerializablePlugin" />
+        <plugin type="com.chrm.mybatis.generator.plugins.LombokPlugin" >
+			<property name="hasLombok" value="true"/>
+		</plugin>
         <commentGenerator>
             <property name="suppressDate" value="false"/>
             <property name="suppressAllComments" value="true"/>

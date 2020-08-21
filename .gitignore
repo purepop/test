@@ -3,5 +3,4 @@ target/
 .vscode/
 .project
 .classpath
-.factorypath
 src/test/
