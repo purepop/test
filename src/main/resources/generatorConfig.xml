@@ -11,7 +11,8 @@
         <plugin type="org.mybatis.generator.plugins.SerializablePlugin" />
         <plugin type="com.chrm.mybatis.generator.plugins.LombokPlugin" >
 			<property name="hasLombok" value="true"/>
-		</plugin>
+        </plugin>
+        <plugin type="com.chrm.mybatis.generator.plugins.RepositoryPlugin" />
         <commentGenerator>
             <property name="suppressDate" value="false"/>
             <property name="suppressAllComments" value="true"/>
@@ -39,6 +40,6 @@
             <property name="enableSubPackages" value="false"/>
         </javaClientGenerator>
             <!--定义需要操作的表及对应的DTO名称-->
-        <table tableName="carsvo" domainObjectName="CarsVo"/>
+        <table tableName="modetest" domainObjectName="ModeTest"/>
     </context>
 </generatorConfiguration>
